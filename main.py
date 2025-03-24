@@ -5,6 +5,7 @@ from langchain_openai import  ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser 
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+from tools import search_tool
 
 load_dotenv()
 # Obtener la clave de API desde el entorno
@@ -37,11 +38,20 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 ).partial(format_instructions=parser.get_format_instructions())
 
+tools = [search_tool]
 agent = create_tool_calling_agent(
     llm=llm,
     prompt=prompt,
-    tools=[]
+    tools=tools
 )
 
 agent_execuotr = AgentExecutor(agent=agent, tools=[], verbose=True, )
-raw_response = agent_executor.invoke({"query": "What is the capital of France?"})
+query = input("What can i help you research? ")
+raw_response = agent_executor.invoke({"query": query)
+
+try:
+    structured_response = parser.parser(raw_response.get(("output")[0]("text"))
+    print(structured_response)
+except Exception as e:
+    print(f"Error parsing response", e, "Raw Response - ", raw_response)
+                                  
